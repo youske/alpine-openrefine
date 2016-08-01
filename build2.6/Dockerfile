@@ -1,20 +1,23 @@
 FROM youske/alpine-java:latest
 MAINTAINER youske@gmail.com
 
-ENV OPENREFINE_VERSION=2.6-beta.1
+ENV OPENREFINE_BASE=/openrefine \
+    OPENREFINE_VERSION=2.6-rc.2 \
+    PORT=3333 \
+    WORK_DIR=/openrefine_work
 ENV TARGET=openrefine-linux-${OPENREFINE_VERSION}
 ENV DOWNLOAD=https://github.com/OpenRefine/OpenRefine/releases/download/${OPENREFINE_VERSION}/${TARGET}.tar.gz
 
 WORKDIR /
+RUN mkdir ${WORK_DIR} && chown -R admin:admin ${WORK_DIR}
 
-# Install Headless JRE after updating installed packages.
-RUN apk update --no-cache && apk add wget --no-cache
+#ADD ${DOWNLOAD} /tmp
+RUN wget --no-certificate ${DOWNLOAD} -O /tmp
+RUN tar zxf /tmp/${TARGET}.tar.gz
+#&& mv /tmp/${TARGET} ${OPENREFINE_BASE}
 
-RUN wget -q --no-check-certificate ${DOWNLOAD} -O- | tar zx && ln -sf  ${TARGET} /openrefine
-#RUN tar -xzf openrefine-linux-2.6-beta.1.tar.gz  && rm openrefine-linux-2.6-beta.1.tar.gz
+#RUN rm -rf /tmp/* /var/apk/cache/*
 
-RUN rm -rf /tmp/*
-
-EXPOSE 3333
-RUN mkdir /mnt/refine
-CMD ["/openrefine-2.6-beta.1/refine", "-i", "0.0.0.0", "-d", "/mnt/refine"]
+EXPOSE ${PORT}
+ENTRYPOINT ["switch","shell=/bin/bash","--","/init"]
+CMD ["gosu","admin","${OPENREFINE_BASE}/refine", "-i", "0.0.0.0", "-d", "${WORK_DIR}"]
