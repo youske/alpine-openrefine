@@ -1,0 +1,20 @@
+version: "2"
+services:
+
+  stable:
+    build: build
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 20000
+        hard: 40000
+    stdin_open: true
+
+  beta:
+      build: build2.6
+      ulimits:
+        nproc: 65535
+        nofile:
+          soft: 20000
+          hard: 40000
+      stdin_open: true
