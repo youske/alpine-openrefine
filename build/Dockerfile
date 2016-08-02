@@ -12,12 +12,10 @@ WORKDIR /
 RUN mkdir ${WORK_DIR} && chown -R admin:admin ${WORK_DIR}
 RUN apk add wget --no-cache
 
-#ADD ${DOWNLOAD} /tmp
-RUN wget --no-check-certificate ${DOWNLOAD} -O /tmp/${TARGET}.tar.gz
-RUN tar zxf /tmp/${TARGET}.tar.gz
-#&& mv /tmp/${TARGET} ${OPENREFINE_BASE}
+RUN wget -q --no-check-certificate ${DOWNLOAD} -O /tmp/${TARGET}.tar.gz
+RUN tar zxf /tmp/${TARGET}.tar.gz && ln -sf /openrefine-${OPENREFINE_VERSION} ${OPENREFINE_BASE}
 
-#RUN rm -rf /tmp/* /var/apk/cache/*
+RUN rm -rf /tmp/* /var/apk/cache/*
 
 EXPOSE ${PORT}
 ENTRYPOINT ["switch","shell=/bin/bash","--","/init"]
